@@ -1,4 +1,4 @@
-package interface
+package main
 
 import(
 	"os"
@@ -52,8 +52,63 @@ func (i Binary) Get() uint64{
 	return uint64(i)
 }
 
+type MyError struct{
+	err error
+	msg string
+}
+
+func bad(err *MyError) bool{
+	if err == nil{
+		return true
+	}
+	return false
+}
+
+// Прикол с нулевым указателем и интерфейсным типом
+// V - nil, T - not nil
+func returnsError() error{
+	var p *MyError = nil
+	// if true -> nil 
+	if bad(p){
+		p = &MyError{
+			err: nil,
+			msg: "Bad, but not error",
+		}
+	}
+	return p // always return this
+}
+
+type Word struct {
+	name     string
+	priority uint
+}
+
+type Foo interface {
+	foo()
+}
+
+func (w *Word) foo() {
+	fmt.Println("call foo()")
+}
+
+func (w *Word) noFoo() {
+	fmt.Println("call noFoo()")
+}
+
+func call(f Foo) {
+	if f != nil {
+		f.foo()
+	} else {
+		fmt.Println("f null")
+	}
+}
+
 func main(){
 	b := Binary(200) 
 	s := Stringer(b) 
  	fmt.Println(s.String())
+
+	var f1 *Word
+	// вывод: "call foo()"
+	call(f1)
 }
