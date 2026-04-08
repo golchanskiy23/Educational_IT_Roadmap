@@ -5,6 +5,7 @@ import (
     "runtime"
     "time"
     "strconv"
+    "context"
 )
 
 func printNumbers(prefix string) {
@@ -68,19 +69,26 @@ func timeout_control(){
     }
 }
 
-func worker(id int, ch chan string) {
+func worker(ctx context.Context, id int, ch chan string) {
     for {
         time.Sleep(time.Second)
-        ch <- fmt.Sprintf("worker %d: завершил задачу", id)
+        select{
+        case ch <- fmt.Sprintf("worker %d: завершил задачу", id):
+        case <-ctx.Done():
+            fmt.Printf("worker %d end work after context cancellation", id)
+            return
+        }
     }
 }
 
 func select_orchestrator(){
     ch1 := make(chan string)
     ch2 := make(chan string)
+    ctx, cancel := context.WithCancel(context.Background())
+    defer cancel()
 
-    go worker(1, ch1)
-    go worker(2, ch2)
+    go worker(ctx, 1, ch1)
+    go worker(ctx, 2, ch2)
 
     for i := 0; i < 5; i++ {
         select {
@@ -118,6 +126,7 @@ func main() {
     sq := square(gen)
     str := toString(sq)
 
+    // не закрываем канал и нет читателя - получаем deadlock
     for s := range str{
         fmt.Println(s)
     }
