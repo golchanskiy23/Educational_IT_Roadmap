@@ -12,10 +12,14 @@ func main(){
 		Auth, Logger, Recovery,
 	))*/
 
-	router := &Router{
-		routes: make(map[string]map[string]http.HandlerFunc),
-	}
-	router.Handle("GET", "/users", http.HandlerFunc(listUsers))
+	router := &Router{}
+	
+	router.Use(Logger)
+	router.Use(Recovery)
+	router.Use(Auth)
+
+	router.Handle("GET", "/users", listUsers)
+	router.Handle("GET", "/users/:id", getUser)
 
 	if err := http.ListenAndServe(":8080", router);  err != nil{
 		log.Fatalf("error during server starts: %v", err)

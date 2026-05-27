@@ -51,5 +51,17 @@ func chain(handler http.Handler, middlewares ...func(http.Handler) http.Handler)
 func listUsers(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusAccepted)
-	w.Write([]byte(`{["alice", "bob"]}`))
+	w.Write([]byte(`{["alice" : 42, "bob" : 32]}`))
+}
+
+func Param(r *http.Request, key string) string {
+    params, _ := r.Context().Value(paramsKey).(map[string]string)
+    return params[key]
+}
+
+func getUser(w http.ResponseWriter, r *http.Request) {
+    id := Param(r, "id")
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
+    w.Write([]byte(`{"id":"` + id + `"}`))
 }
