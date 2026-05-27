@@ -53,15 +53,3 @@ func listUsers(w http.ResponseWriter, r *http.Request){
 	w.WriteHeader(http.StatusAccepted)
 	w.Write([]byte(`{["alice", "bob"]}`))
 }
-
-func main(){
-	mux := http.NewServeMux()
-	mux.Handle("GET /users", chain(
-		http.HandlerFunc(listUsers),
-		Auth, Logger, Recovery,
-	))
-
-	if err := http.ListenAndServe(":8080", mux);  err != nil{
-		log.Fatalf("error during server starts: %v", err)
-	}
-}
