@@ -1,4 +1,5 @@
 #include "heap.h"
+#include <iterator>
 
 Heap::Heap() {}
 
@@ -33,23 +34,29 @@ void Heap::min_heapify(std::vector<int>& v, int idx) {
   }
 }
 
-void Heap::build_min_heap(std::vector<int>& v) {
-  heap_size = arr_size = v.size();
+void Heap::build(std::vector<int>& v) {
+  heap_size = v.size();
   for (int i = v.size() / 2 - 1; i >= 0; i--) {
       min_heapify(v, i);
   }
 }
 
-std::vector<int> Heap::heap_sort(std::vector<int> &v) {
+bool Heap::empty() const { return heap_size == 0; }
+
+int Heap::extract_min() {
+  // обработка пустого массива
+  int front = v[0];
+  v[0] = v[heap_size - 1];
+  --heap_size;
+  min_heapify(v, 0);
+  return front;  
+}
+
+void heap_sort(std::vector<int> &v) {
   // обработка пустого массива !!!
-  build_min_heap(v);
-  std::vector<int> sorted_arr;
-    for (int i = v.size() - 1; i >= 1; i--) {
-        sorted_arr.push_back(v[0]);
-        std::swap(v[0], v[i]);
-        heap_size--;
-        min_heapify(v, 0);
-    }
-    sorted_arr.push_back(v[0]);
-    return sorted_arr;
+  Heap h;
+  h.build(v);
+  while (!h.empty()) {
+    h.extract_min();
+  }
 }
