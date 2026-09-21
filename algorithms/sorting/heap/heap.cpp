@@ -1,5 +1,5 @@
 #include "heap.h"
-#include <iterator>
+#include <climits>
 
 Heap::Heap() {}
 
@@ -59,4 +59,24 @@ void heap_sort(std::vector<int> &v) {
   while (!h.empty()) {
     h.extract_min();
   }
+}
+
+int Heap::get_min() const {
+    return v[0];
+}
+
+void Heap::decrease_key(int idx, int new_val) {
+    // невалидное значение  - возвращаем ошибку
+    if(new_val > v[idx]) return;
+    v[idx] = new_val;
+    while (idx > 0 && v[parent(idx)] > v[idx]) {
+        std::swap(v[idx], v[parent(idx)]);
+        idx = parent(idx);
+    }
+}
+
+void Heap::insert(int new_key) {
+  heap_size++;
+  v[heap_size - 1] = INT_MAX;
+  decrease_key(heap_size-1, new_key);
 }
